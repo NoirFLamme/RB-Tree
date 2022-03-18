@@ -81,13 +81,13 @@ public class RBTree {
         if (parentNode.value.compareTo(value) == 0) {
             // If there's a node with the same value , just return
             return;
-        } else if (parentNode.value.compareTo(value) < 0) {
-            // Parent node value less than added value >> add to the right
+        } else if (value.compareTo(parentNode.value) > 0) {
+            // add to the right
             Node node = new Node(value, parentNode, "red");
             parentNode.right = node;
             insertionFixup(node);
-        } else if (parentNode.value.compareTo(value) > 0) {
-            // Parent node value more than added value >> add to the left
+        } else if (value.compareTo(parentNode.value) < 0) {
+            // add to the left
             Node node = new Node(value, parentNode, "red");
             parentNode.left = node;
             insertionFixup(node);
@@ -153,32 +153,29 @@ public class RBTree {
         if (n.parent == null) {
             // If the node has no parent, this means its a root node , color it black
             n.color = "black";
+            root = n;
             return;
         }
 
         // Only do correction if the parent is red
         if (n.parent.color.equals("red")) {
-            Node uncle = n.parent.parent.right;
 
             if (n.parent == n.parent.parent.left) // Parent is a left child
             {
+                Node uncle = n.parent.parent.right;
+
                 if (uncle == null || uncle.color.equals("black")) {
                     // Rotation is needed
-                    if (n == n.parent.left) {
-                        // node is also a left child
-                        // LL case
-                        n.parent.parent.switchColor();
-                        n.parent.switchColor();
-                        rightRotation(n.parent.parent);
-                    }
-                    else {
+                    if (n == n.parent.right) {
                         // Node is a right child
                         // LR case
-                        n.switchColor(); // change node color
-                        n.parent.parent.switchColor(); // Change grandparents color
-                        rightRotation(n.parent);
-                        leftRotation(n.parent.parent);
+                        n = n.parent;   // n.parent will be the node at the leaf after rotation
+                        leftRotation(n); // turns it into a LL case
                     }
+                    // LL case
+                    n.parent.switchColor();
+                    n.parent.parent.switchColor();
+                    rightRotation(n.parent.parent);
                 }
                 else {
                     // parent is red, uncle is red
@@ -190,32 +187,30 @@ public class RBTree {
             }
             else // Parent is a right child
             {
+                Node uncle = n.parent.parent.left;
+
                 if (uncle == null || uncle.color.equals("black")) {
                     // Rotation is needed
-                    if (n == n.parent.right) {
-                        // node is also a right child
-                        // RR case
-                        n.parent.parent.switchColor();
-                        n.parent.switchColor();
-                        leftRotation(n.parent.parent);
-                    }
-                    else {
+                    if (n == n.parent.left) {
                         // Node is a left child
                         // RL case
-                        n.color = "black"; // change node color
-                        n.parent.parent.color = "red"; // Change grandparents color
-                        rightRotation(n);
-                        leftRotation(n.parent);
+                        n = n.parent;   // n.parent will be the node at the leaf after rotation
+                        rightRotation(n); // turns it into a RR case
                     }
+                    // RR case
+                    n.parent.switchColor();
+                    n.parent.parent.switchColor();
+                    leftRotation(n.parent.parent);
                 }
                 else {
                     // parent is red, uncle is black
-                    uncle.color = "black";
-                    n.parent.color = "black";
-                    n.parent.parent.color = "red";
+                    uncle.switchColor();
+                    n.parent.switchColor();
+                    n.parent.parent.switchColor();
                     insertionFixup(n.parent.parent);
                 }
             }
+
         }
     }
 
@@ -240,13 +235,52 @@ public class RBTree {
     private void rightRotation(Node current) {
         Node nRoot = current.left;
         current.left = nRoot.right;
+        if (nRoot.right != null) {
+            nRoot.right.parent = current;
+        }
         nRoot.right = current;
+
+        Node temp = current.parent;
+        if (current == root) {
+            root = nRoot;
+        }
+        else {
+            if (temp.right == current) {
+                // current root of subtree is a right child
+                temp.right = nRoot;
+            }
+            else{
+                temp.left = nRoot;
+            }
+        }
+        current.parent = nRoot;
+        nRoot.parent = temp;
     }
 
     private void leftRotation(Node current) {
+
         Node nRoot = current.right;
         current.right = nRoot.left;
+        if (current.right != null) {
+            current.right.parent = current;
+        }
         nRoot.left = current;
+
+        Node temp = current.parent;
+        if (current == root) {
+            root = nRoot;
+        }
+        else {
+            if (temp.right == current) {
+                // current root of subtree is a right child
+                temp.right = nRoot;
+            }
+            else{
+                temp.left = nRoot;
+            }
+        }
+        current.parent = nRoot;
+        nRoot.parent = temp;
     }
 
     private void flip_color(Node n, Node m) {
@@ -345,6 +379,26 @@ public class RBTree {
           tree.insert("5");
           tree.insert("6");
           tree.insert("7");
+          tree.insert("8");
+          tree.insert("9");
+        System.out.println("done");
+//          tree.insert("potato");
+//          tree.insert("tomato");
+//          tree.insert("spaghetti");
+//          tree.insert("meatball");
+//          tree.insert("apple");
+//          tree.insert("banana");
+//          tree.insert("watermelon");
+//          potato
+//
+//spaghetti
+//
+//
+//
+//
+//strawberry
+//blackberry
+//avocado
 //        tree.root = tree.insert(tree.root, null,"d");
 //        tree.root = tree.insert(tree.root, null,"g");
 //
